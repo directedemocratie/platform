@@ -46,7 +46,7 @@ export default function RootLayout({
                   <Link href="/confidentialite" className="text-slate-500 hover:text-indigo-600 transition-colors">
                     Confidentialité
                   </Link>
-                  <a href="https://github.com" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-indigo-600 transition-colors">
+                  <a href="https://github.com/directedemocratie/platform" target="_blank" rel="noopener noreferrer" className="text-slate-500 hover:text-indigo-600 transition-colors">
                     Code Source (GitHub)
                   </a>
                 </div>

@@ -56,7 +56,7 @@ export default function AboutPage() {
             </p>
             <div className="mt-3.5">
               <a 
-                href="https://github.com" 
+                href="https://github.com/directedemocratie/platform" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-xs font-bold text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100/80 px-4 py-2 rounded-xl transition-all"
