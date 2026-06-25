@@ -1,36 +1,148 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Démocratie Directe 🇫🇷
 
-## Getting Started
+## Description
 
-First, run the development server:
+Démocratie Directe est une plateforme web civic-tech visant à rendre la législation française plus accessible et participative. Elle permet à chaque citoyen de lire les textes de loi officiels, de proposer des amendements argumentés et de voter pour faire émerger des consensus collectifs.
+
+> ⚠️ **Démarche expérimentale & pédagogique.** Ce projet est une simulation citoyenne indépendante. Les propositions et votes n'ont aucune valeur légale ou juridique.
+
+---
+
+## Technologies
+
+| Couche           | Technologie                                                                |
+| ---------------- | -------------------------------------------------------------------------- |
+| Framework        | [Next.js 15](https://nextjs.org/) (App Router, Server & Client Components) |
+| Langage          | TypeScript 5                                                               |
+| Base de données  | PostgreSQL                                                                 |
+| ORM              | [Prisma 6](https://www.prisma.io/)                                         |
+| Styles           | Tailwind CSS v4                                                            |
+| Authentification | Magic Link maison (token AES-256-GCM, cookie httpOnly)                     |
+| Envoi d'email    | [Resend](https://resend.com/) _(à configurer — voir `.env`)_               |
+
+---
+
+## Fonctionnalités
+
+- **Base de données législative** : Constitution, Code Civil, Code Pénal, Code du Travail (via sync depuis [legalize-fr](https://github.com/legalize-dev/legalize-fr))
+- **Navigation paginée** avec infinite scroll par code de loi
+- **Version Citoyenne** : split-view officiel / version amendée avec diff inline
+- **Propositions d'amendement** : soumission avec justification argumentée
+- **Système de vote** : score calculé sur les votes +1 / -1
+- **Authentification** par Magic Link (sans mot de passe)
+- **Profil utilisateur** avec pseudo unique
+
+---
+
+## Structure du projet
+
+```
+src/
+├── app/
+│   ├── page.tsx               # Accueil (Server Component)
+│   ├── [code]/                # Liste des articles d'un code
+│   │   ├── page.tsx
+│   │   └── [article]/         # Page d'un article + propositions
+│   │       ├── page.tsx
+│   │       └── ProposeModificationButton.tsx
+│   ├── api/
+│   │   ├── articles/          # CRUD articles
+│   │   ├── categories/        # Liste des codes
+│   │   ├── proposals/         # CRUD propositions (rate limited)
+│   │   ├── auth/
+│   │   │   ├── magic-link/    # Génération du lien de connexion
+│   │   │   ├── callback/      # Validation du token
+│   │   │   ├── logout/
+│   │   │   └── me/
+│   │   └── codes/             # API codes (comparaison citoyenne)
+│   └── login/                 # Page de connexion
+├── components/
+│   └── Navbar.tsx
+├── context/
+│   └── SessionContext.tsx     # Contexte auth côté client
+├── lib/
+│   └── prisma.ts              # Singleton Prisma Client
+└── utils/
+    ├── auth.ts                # Chiffrement AES-256-GCM des sessions
+    ├── diff.ts                # Diff inline texte officiel / citoyen
+    ├── rateLimit.ts           # Rate limiter sliding window en mémoire
+    └── slugify.ts
+
+prisma/
+├── schema.prisma              # Schéma de données
+└── seed.ts
+
+scripts/
+└── sync_laws.ts               # Script d'import des textes de loi
+```
+
+---
+
+## Guide de démarrage rapide
+
+### 1. Variables d'environnement
+
+Copiez `.env` et renseignez les valeurs :
+
+```env
+# Connexion PostgreSQL
+DATABASE_URL="postgresql://utilisateur:motdepasse@localhost:5432/directedemocratie"
+
+# Clé de chiffrement des sessions (générer avec : openssl rand -hex 32)
+# OBLIGATOIRE en production
+SESSION_SECRET=votre-cle-secrete-32-octets
+
+# Email (décommenter quand vous avez un domaine)
+# EMAIL_PROVIDER=resend
+# RESEND_API_KEY=re_...
+# EMAIL_FROM=noreply@votre-domaine.fr
+```
+
+### 2. Initialiser la base de données
+
+```bash
+npx prisma db push
+```
+
+### 3. Lancer le serveur de développement
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Le site sera accessible sur [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 4. Importer la législation
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# Tous les codes par défaut (Constitution, Civil, Pénal, Travail)
+npm run db:sync-laws
 
-## Learn More
+# Un seul code spécifique
+npm run db:sync-laws -- --only constitution
+npm run db:sync-laws -- --only code-civil
+npm run db:sync-laws -- --only code-penal
+npm run db:sync-laws -- --only code-travail
+```
 
-To learn more about Next.js, take a look at the following resources:
+### 5. Résoudre un conflit de port
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+# Libérer le port 3000
+kill -9 $(lsof -t -i :3000)
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## Notes de sécurité
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- En **développement**, si `SESSION_SECRET` n'est pas définie, une valeur de fallback locale est utilisée.
+- En **production**, `SESSION_SECRET` **doit** être définie — son absence provoque un crash explicite au démarrage.
+- Le Magic Link est valable **15 minutes** et ne peut être utilisé qu'une fois.
+- Les routes `/api/proposals` (POST) et `/api/auth/magic-link` (POST) sont protégées par un rate limiting.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## Licence
+
+MIT — voir `LICENSE` pour plus de détails.

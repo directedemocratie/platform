@@ -1,0 +1,133 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Code {
+  id          String    @id @default(cuid())
+  name        String    // ex: "Code du travail"
+  slug        String    @unique
+  description String
+  icon        String
+  sections    Section[]
+  articles    Article[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Section {
+  id        String    @id @default(cuid())
+  name      String    // ex: "LIVRE I", "TITRE II"
+  type      String    // "LIVRE", "TITRE", "CHAPITRE", etc.
+  parentId  String?   // Pour la hiérarchie (un titre dans un livre, etc.)
+  parent    Section?  @relation("SectionParent", fields: [parentId], references: [id])
+  children  Section[] @relation("SectionParent")
+  code      Code      @relation(fields: [codeId], references: [id])
+  codeId    String
+  articles  Article[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+// Modèle pour les articles de loi
+model Article {
+  id          String   @id @default(cuid())
+  number      String   // ex: "Article 1"
+  title       String   // ex: "Entrée en vigueur des lois"
+  content     String   @db.Text
+  order       Int      @default(0) // Pour le tri des articles
+  codeId      String
+  code        Code     @relation(fields: [codeId], references: [id])
+  sectionId   String?
+  section     Section? @relation(fields: [sectionId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  versions    ArticleVersion[]
+  proposals   Proposal[]
+  comments    Comment[]
+
+  @@unique([codeId, number])
+}
+
+// Modèle pour les versions des articles
+model ArticleVersion {
+  id        String   @id @default(cuid())
+  articleId String
+  article   Article  @relation(fields: [articleId], references: [id])
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  createdBy String   // ID de l'utilisateur qui a fait la modification
+}
+
+// Modèle pour les propositions de modification
+model Proposal {
+  id            String   @id @default(cuid())
+  articleId     String
+  article       Article  @relation(fields: [articleId], references: [id])
+  content       String   @db.Text
+  justification String   @db.Text
+  status        String   // "pending", "deleted"
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  createdBy     String   // Pseudo de l'utilisateur qui a fait la proposition
+  userId        String?  // ID FK vers User (optionnel pour compatibilité avec les données existantes)
+  user          User?    @relation(fields: [userId], references: [id])
+  votes         Vote[]
+  comments      Comment[]
+}
+
+// Modèle pour les votes sur les propositions
+model Vote {
+  id         String   @id @default(cuid())
+  proposalId String
+  proposal   Proposal @relation(fields: [proposalId], references: [id])
+  userId     String   // ID de l'utilisateur qui vote
+  value      Int      // 1 pour positif, -1 pour négatif
+  createdAt  DateTime @default(now())
+
+  @@unique([proposalId, userId])
+}
+
+// Modèle pour les commentaires
+model Comment {
+  id         String   @id @default(cuid())
+  content    String   @db.Text
+  articleId  String?
+  article    Article? @relation(fields: [articleId], references: [id])
+  proposalId String?
+  proposal   Proposal? @relation(fields: [proposalId], references: [id])
+  userId     String   // ID de l'utilisateur qui commente
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  pseudo    String     @unique
+  role      String     @default("user") // "user", "admin"
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  proposals Proposal[]
+}
+
+model VerificationToken {
+  id        String   @id @default(cuid())
+  email     String
+  pseudo    String?
+  token     String   @unique
+  expires   DateTime
+  createdAt DateTime @default(now())
+}
+
