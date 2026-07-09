@@ -173,8 +173,8 @@ export default function CodePage({ params }: { params: Promise<{ code: string }>
 
           {/* Labels des colonnes (seulement quand la colonne droite est visible) */}
           {showCitizen && (
-            <div className="grid grid-cols-2 mt-2.5 pt-2.5 border-t border-gray-100 -mx-6 px-6">
-              <div className="flex items-center gap-2 pr-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 mt-2.5 pt-2.5 border-t border-gray-100 -mx-6 px-6">
+              <div className="hidden sm:flex items-center gap-2 pr-4">
                 <div className="w-2 h-2 rounded-full bg-gray-400 shrink-0"></div>
                 <span className="text-xs font-bold text-gray-500 uppercase tracking-widest">Texte Officiel</span>
               </div>
@@ -193,14 +193,14 @@ export default function CodePage({ params }: { params: Promise<{ code: string }>
           Le scroll infini fonctionne dans les deux modes.
          ══════════════════════════════════════════════════════════ */}
       <div>
-        <div className={`grid ${showCitizen ? "grid-cols-2" : "grid-cols-1"}`}>
+        <div className={`grid ${showCitizen ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-1"}`}>
 
           {/* ── Squelettes de chargement ── */}
           {loading && (
             <>
               {[1, 2, 3, 4].map((i) => (
                 <Fragment key={i}>
-                  <div className={`p-5 border-b border-gray-100 animate-pulse ${showCitizen ? "border-r" : ""}`}>
+                  <div className={`p-5 border-b border-gray-100 animate-pulse ${showCitizen ? "sm:border-r hidden sm:block" : ""}`}>
                     <div className="h-3 bg-gray-100 rounded w-20 mb-3"></div>
                     <div className="h-4 bg-gray-100 rounded w-48 mb-2"></div>
                     <div className="h-16 bg-gray-100 rounded"></div>
@@ -228,21 +228,24 @@ export default function CodePage({ params }: { params: Promise<{ code: string }>
                 {/* ── Cellule gauche : Texte officiel ── */}
                 <div
                   className={`p-5 border-b border-gray-100 group hover:bg-gray-50/60 transition-colors ${
-                    showCitizen ? "border-r" : ""
+                    showCitizen ? "sm:border-r hidden sm:block" : ""
                   }`}
                 >
                   {/* En-tête de l'article */}
                   <div className="flex items-start justify-between gap-2 mb-2">
-                    <div className="flex items-center gap-2 flex-wrap min-w-0">
-                      <span className="text-xs font-bold text-blue-600 uppercase tracking-wider shrink-0">
+                    <Link
+                      href={`/${codeSlug}/${articleSlug}`}
+                      className="flex items-center gap-2 flex-wrap min-w-0 hover:text-indigo-600 transition-colors group/title"
+                    >
+                      <span className="text-xs font-bold text-blue-600 uppercase tracking-wider shrink-0 group-hover/title:underline">
                         {article.number}
                       </span>
                       {article.title && article.title !== article.number && (
-                        <span className="text-sm font-semibold text-gray-700 truncate">
+                        <span className="text-sm font-semibold text-gray-700 truncate group-hover/title:underline">
                           {article.title}
                         </span>
                       )}
-                    </div>
+                    </Link>
                     <div className="flex items-center gap-2 shrink-0">
                       {hasAmendment && (
                         <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full whitespace-nowrap">
@@ -251,7 +254,7 @@ export default function CodePage({ params }: { params: Promise<{ code: string }>
                       )}
                       <Link
                         href={`/${codeSlug}/${articleSlug}`}
-                        className="opacity-0 group-hover:opacity-100 text-xs font-semibold text-indigo-600 hover:text-white hover:bg-indigo-600 bg-indigo-50 border border-indigo-100 px-2.5 py-1 rounded-lg transition-all whitespace-nowrap"
+                        className="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 text-xs font-semibold text-indigo-600 hover:text-white hover:bg-indigo-600 bg-indigo-50 border border-indigo-100 px-2.5 py-1 rounded-lg transition-all whitespace-nowrap"
                       >
                         Voir l'article →
                       </Link>
@@ -337,7 +340,7 @@ export default function CodePage({ params }: { params: Promise<{ code: string }>
           {hasMore && !loading && (
             <div
               ref={observerTarget}
-              className={`h-16 flex items-center justify-center ${showCitizen ? "col-span-2" : ""}`}
+              className={`h-16 flex items-center justify-center ${showCitizen ? "sm:col-span-2" : ""}`}
             >
               {loadingMore && (
                 <div className="flex items-center gap-2 text-blue-600">
@@ -353,14 +356,14 @@ export default function CodePage({ params }: { params: Promise<{ code: string }>
 
           {/* ── Fin de la liste ── */}
           {!hasMore && !loading && articles.length > 0 && (
-            <div className={`py-8 text-center text-gray-300 text-sm border-t border-gray-100 ${showCitizen ? "col-span-2" : ""}`}>
+            <div className={`py-8 text-center text-gray-300 text-sm border-t border-gray-100 ${showCitizen ? "sm:col-span-2" : ""}`}>
               {articles.length} article{articles.length > 1 ? "s" : ""} — fin de la liste
             </div>
           )}
 
           {/* ── Aucun article ── */}
           {!loading && articles.length === 0 && (
-            <div className={`py-16 text-center ${showCitizen ? "col-span-2" : ""}`}>
+            <div className={`py-16 text-center ${showCitizen ? "sm:col-span-2" : ""}`}>
               <p className="text-gray-400">Aucun article disponible pour ce texte.</p>
             </div>
           )}
