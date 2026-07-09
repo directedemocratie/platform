@@ -379,7 +379,7 @@ export default function CodePage({ params }: { params: Promise<{ code: string }>
 function DiffView({ original, modified }: { original: string; modified: string }) {
   const tokens = computeDiff(original, modified);
   return (
-    <div className="text-sm leading-relaxed whitespace-pre-wrap font-mono select-text">
+    <div className="text-sm leading-relaxed whitespace-pre-wrap select-text">
       {tokens.map((token, i) => {
         if (token.type === "added") {
           return (

@@ -315,7 +315,7 @@ export default function VersionCitoyennePage({
                     )}
                   </div>
                   {/* Contenu */}
-                  <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line font-mono">
+                  <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-line">
                     {article.officialContent}
                   </p>
                 </div>
@@ -362,7 +362,7 @@ export default function VersionCitoyennePage({
                       modified={article.citizenContent!}
                     />
                   ) : (
-                    <p className="text-sm text-gray-400 leading-relaxed whitespace-pre-line font-mono italic">
+                    <p className="text-sm text-gray-400 leading-relaxed whitespace-pre-line italic">
                       {article.officialContent}
                     </p>
                   )}
@@ -383,7 +383,7 @@ function DiffView({ original, modified }: { original: string; modified: string }
   const tokens = computeDiff(original, modified);
 
   return (
-    <div className="text-sm leading-relaxed whitespace-pre-wrap font-mono select-text text-gray-700">
+    <div className="text-sm leading-relaxed whitespace-pre-wrap select-text text-gray-700">
       {tokens.map((token, i) => {
         if (token.type === "added") {
           return (

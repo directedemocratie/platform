@@ -256,7 +256,7 @@ export default function ArticlePage({ params }: { params: Promise<{ code: string
                     {/* ── Contenu de la proposition ── */}
                     <div className="flex-1 py-5 pr-4 min-w-0">
                       {/* Diff */}
-                      <div className="bg-gray-50 border border-gray-200 rounded p-4 font-mono text-sm leading-relaxed whitespace-pre-wrap select-text mb-3">
+                      <div className="bg-gray-50 border border-gray-200 rounded p-4 text-sm leading-relaxed whitespace-pre-wrap select-text mb-3">
                         {diffTokens.map((token, i) => {
                           if (token.type === "added") {
                             return (
