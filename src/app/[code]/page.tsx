@@ -33,7 +33,7 @@ export default function CodePage({ params }: { params: Promise<{ code: string }>
   } | null>(null);
 
   // ── Affichage de la colonne citoyenne ──────────────────────────
-  const [showCitizen, setShowCitizen] = useState(false);
+  const [showCitizen, setShowCitizen] = useState(true);
 
   // ── Refs ───────────────────────────────────────────────────────
   const observerTarget = useRef<HTMLDivElement>(null);
@@ -47,7 +47,7 @@ export default function CodePage({ params }: { params: Promise<{ code: string }>
     setProposalMap(new Map());
     setProposalMapLoaded(false);
     setCodeInfo(null);
-    setShowCitizen(false);
+    setShowCitizen(true);
 
     // 1. Articles paginés
     fetch(`/api/articles?code=${codeSlug}&limit=${BATCH_SIZE}&offset=0`)
